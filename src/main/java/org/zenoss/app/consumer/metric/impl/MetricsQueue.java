@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricName;
 import com.yammer.metrics.core.MetricsRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,15 @@ import org.zenoss.app.consumer.metric.data.Metric;
 class MetricsQueue implements TsdbMetricsQueue {
 
     MetricsQueue() {
+        this(new MetricsNameProvider());
+    }
+
+    MetricsQueue(MetricsNameProvider nameProvider) {
         this.queue = new LinkedBlockingQueue<>();
-        this.totalErrorsMetric = Metrics.newCounter(errorsMetricName());
-        this.totalInFlightMetric = Metrics.newCounter(inFlightMetricName());
+        this.nameProvider = nameProvider;
+
+        this.totalErrorsMetric = Metrics.newCounter(nameProvider.errorsMetricName());
+        this.totalInFlightMetric = Metrics.newCounter(nameProvider.inFlightMetricName());
         this.totalIncomingMetric = registerIncoming();
         this.totalOutGoingMetric = registerOutgoing();
     }
@@ -99,13 +104,13 @@ class MetricsQueue implements TsdbMetricsQueue {
         totalInFlightMetric.dec(processed);
         totalOutGoingMetric.mark(processed);
     }
-    
+
     private Meter registerIncoming() {
-        return Metrics.newMeter(incomingMetricName(), "metrics", TimeUnit.SECONDS);
+        return Metrics.newMeter(nameProvider.incomingMetricName(), "metrics", TimeUnit.SECONDS);
     }
-    
+
     private Meter registerOutgoing() {
-        return Metrics.newMeter(outgoingMetricName(), "metrics", TimeUnit.SECONDS);
+        return Metrics.newMeter(nameProvider.outgoingMetricName(), "metrics", TimeUnit.SECONDS);
     }
     
     // Used for testing
@@ -113,8 +118,8 @@ class MetricsQueue implements TsdbMetricsQueue {
         totalErrorsMetric.clear();
         totalInFlightMetric.clear();
         MetricsRegistry registry = Metrics.defaultRegistry();
-        registry.removeMetric(incomingMetricName());
-        registry.removeMetric(outgoingMetricName());
+        registry.removeMetric(nameProvider.incomingMetricName());
+        registry.removeMetric(nameProvider.outgoingMetricName());
         totalIncomingMetric = registerIncoming();
         totalOutGoingMetric = registerOutgoing();
     }
@@ -143,23 +148,7 @@ class MetricsQueue implements TsdbMetricsQueue {
     double getOneMinuteOutgoing() {
         return totalOutGoingMetric.oneMinuteRate();
     }
-    
-    MetricName incomingMetricName() {
-        return new MetricName(MetricsQueue.class, "totalIncoming");
-    }
 
-    MetricName outgoingMetricName() {
-        return new MetricName(MetricsQueue.class, "totalOutgoing");
-    }
-    
-    MetricName inFlightMetricName() {
-        return new MetricName(MetricsQueue.class, "totalInFlight");
-    }
-
-    MetricName errorsMetricName() {
-        return new MetricName(MetricsQueue.class, "totalErrors");
-    }
-    
     private static final Logger log = LoggerFactory.getLogger(MetricsQueue.class);
     
     /** Data to be written to TSDB */
@@ -168,7 +157,9 @@ class MetricsQueue implements TsdbMetricsQueue {
     /* ---------------------------------------------------------------------- *
      *  Yammer Metrics (internal to this process)                             *
      * ---------------------------------------------------------------------- */
-    
+
+    private final MetricsNameProvider nameProvider;
+
     /** How many errors occured writing to OpenTsdb */
     private final Counter totalErrorsMetric;
     
@@ -180,4 +171,6 @@ class MetricsQueue implements TsdbMetricsQueue {
     
     /** How many metrics were written (this # may reset) */
     private Meter totalOutGoingMetric;
+
+
 }

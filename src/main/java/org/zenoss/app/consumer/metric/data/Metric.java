@@ -60,15 +60,27 @@ public class Metric {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        Metric metric = (Metric) o;
+        Metric other = (Metric) o;
 
-        if (timestamp != metric.timestamp) return false;
-        if (Double.compare(metric.value, value) != 0) return false;
-        if (this.metric != null ? !this.metric.equals(metric.metric) : metric.metric != null) return false;
-        if (tags != null ? !tags.equals(metric.tags) : metric.tags != null) return false;
+        if (timestamp != other.timestamp) {
+            return false;
+        }
+        if (Double.compare(other.value, value) != 0) {
+            return false;
+        }
+        if (this.metric != null ? !this.metric.equals(other.metric) : other.metric != null) {
+            return false;
+        }
+        if (tags != null ? !tags.equals(other.tags) : other.tags != null) {
+            return false;
+        }
 
         return true;
     }

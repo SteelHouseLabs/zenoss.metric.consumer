@@ -32,7 +32,7 @@ public class OpenTsdbWriterTest {
     public void setUp() {
         configuration = new MetricServiceConfiguration();
         configuration.setMaxIdleTime(1);
-        metricsQueue = new WriterTestQueue();
+        metricsQueue = new MetricsQueue(new TestNameProvider());
         client = mock(OpenTsdbClient.class);
         badClient = mock(OpenTsdbClient.class);
         goodClient = mock(OpenTsdbClient.class);
@@ -184,7 +184,7 @@ public class OpenTsdbWriterTest {
      * by MetricsQueue use global metrics that would otherwise conflict with
      * other test threads.
      */
-    private static class WriterTestQueue extends MetricsQueue {
+    private static class TestNameProvider extends MetricsNameProvider {
 
         @Override
         MetricName incomingMetricName() {

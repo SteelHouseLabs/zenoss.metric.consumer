@@ -50,12 +50,12 @@ class OpenTsdbWriterRegistry implements TsdbWriterRegistry, com.yammer.dropwizar
     }
     
     @Override
-    public void start() throws Exception {
+    public void start() {
         log.debug("Starting");
     }
 
     @Override
-    public synchronized void stop() throws Exception {
+    public synchronized void stop() {
         int count=0;
         for (TsdbWriter writer : createdWriters) {
             writer.cancel();

@@ -62,7 +62,7 @@ class MetricsReporter extends AbstractPollingReporter implements com.yammer.drop
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         if (frequency > 0) {
             log.info("Starting internal metrics reporter");
             start(frequency, TimeUnit.MILLISECONDS);
@@ -73,7 +73,7 @@ class MetricsReporter extends AbstractPollingReporter implements com.yammer.drop
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         shutdown();
     }
     

@@ -35,13 +35,21 @@ public class Message {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        Message message = (Message) o;
+        Message other = (Message) o;
 
-        if (control != null ? !control.equals(message.control) : message.control != null) return false;
-        if (!Arrays.equals(metrics, message.metrics)) return false;
+        if (control != null ? !control.equals(other.control) : other.control != null) {
+            return false;
+        }
+        if (!Arrays.equals(metrics, other.metrics)) {
+            return false;
+        }
 
         return true;
     }
